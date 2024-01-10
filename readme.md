@@ -10,8 +10,11 @@ How do you even set ridiculously good high scores that your friends
  could never dream of beating if there is no score?
 
 ## Info
-Howdi-do intends to use <a href = "https://github.com/librosa/librosa">librosa</a><sub><sup><sup>Copyright (c) 2013--2023, librosa development team</sup></sup></sub> to
-extract and analyze pitch data, the current implementation would require 2
+Howdi-do uses <a href = "https://github.com/librosa/librosa">librosa</a><sub><sup><sup>Copyright (c) 2013--2023, librosa development team</sup></sup></sub> to
+extract and analyze beat data.  
+I intend to also implement pitch based scoring.
+  
+The current implementation would require 2
 files, one being a recording of your singing and the other being a vocals file
 of the song you're singing.
 
