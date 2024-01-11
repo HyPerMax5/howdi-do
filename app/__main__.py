@@ -4,7 +4,7 @@ from multiprocessing import Process
 from multiprocessing import Queue
 
 
-#!Can't get this to work the way I want it to work, python is a pain.
+#!This works now, Python just needs a lot more manual handling than GDScript ;)
 
 global singer_extraction_finished
 singer_extraction_finished:bool = False
@@ -44,13 +44,14 @@ def extract_song_rythm(queue):
 	queue.put((2, song_beat_frames))
 	song_extraction_finished = True
 	print("Song rythm done!");print("Song extraction finished: ", song_extraction_finished)
-	return song_extraction_finished, song_beat_frames
+	return song_extraction_finished
 
 def score_rythm(singer_beat_frames, song_beat_frames):
 	print("Scoring Rythm...!")
-	rhythm_deviation = np.subtract(np.mean(np.abs(singer_beat_frames)), np.mean(np.abs(song_beat_frames)))
-	rhythm_score = max_score - (rhythm_deviation / 100)
-	#rhythm_score = max(min(rhythm_score, max_score), min_score)
+	rhythm_deviation = np.subtract(np.mean(np.abs(song_beat_frames)), np.mean(np.abs(singer_beat_frames)))
+	rhythm_score = max_score - (rhythm_deviation / 10)
+	rhythm_score = max(min(rhythm_score, max_score), min_score)
+	print("Rythm Deviation: ", rhythm_deviation)
 	print("Rhythm Score:", rhythm_score)
 	return rhythm_score
 
@@ -67,9 +68,6 @@ if __name__=='__main__':
 	result1 = queue.get()
 	result2 = queue.get()
 
-	print(result1[1])
-	print("Space")
-	print(result2[1])
 
 	while singer_extraction_finished == True and song_extraction_finished == True:
 		print("Waiting....")
