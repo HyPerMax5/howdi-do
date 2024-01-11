@@ -13,7 +13,6 @@ ref_y, ref_sr = librosa.load(ref)
 tempo, beat_frames = librosa.beat.beat_track(y=audio_y, sr=audio_sr)
 ref_tempo, ref_beat_frames = librosa.beat.beat_track(y=ref_y, sr=ref_sr)
 
-#beat_times = librosa.frames_to_time(beat_frames, sr=audio_sr)
 
 
 
