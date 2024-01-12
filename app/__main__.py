@@ -73,4 +73,4 @@ if __name__=='__main__':
 		print("Waiting....")
 	else:
 		score_rhythm(result1[1], result2[1])
-		print("Weeee, done!")
+		print("I gave you all I had... I did.")

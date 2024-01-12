@@ -39,4 +39,4 @@ rhythm_score = max_score - (rhythm_deviation / 10)
 
 #*Clamps the score to a minimum and maximum value, this is mainly to avoid negative digits if something goes wrong.
 rhythm_score = max(min(rhythm_score, max_score), min_score)
-print("Rhythm Score:", rhythm_score)
+print("Rhythm Score: ", rhythm_score)
