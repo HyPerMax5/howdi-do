@@ -1,17 +1,17 @@
 import numpy as np
 import librosa
 
-max_score:float = 100
-min_score:float = 0
-
 """
-   Extracts rythm, calculates deviation and gives a score based on that.
+   Extracts rhythm, calculates deviation and gives a score based on that.
 
    Limitations:
    Audio has to be the same length as the reference audio for accurate scoring,
    I'd advise to use the observer pattern to begin your recording at the exact moment
    your song audio begins to play.
    """
+
+max_score:float = 100
+min_score:float = 0
 
 
 #*Your audio to score.
@@ -32,7 +32,7 @@ print(ref_tempo); print(ref_beat_frames)
 
 #*Subtracts the result arrays to get the difference.
 rhythm_deviation = np.subtract(np.mean(np.abs(ref_beat_frames)), np.mean(np.abs(beat_frames)))
-print("Rythm Deviation:", rhythm_deviation)
+print("Rhythm Deviation:", rhythm_deviation)
 
 #*Score is attained.
 rhythm_score = max_score - (rhythm_deviation / 10)
