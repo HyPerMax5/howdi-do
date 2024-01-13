@@ -12,7 +12,7 @@ How do you even set ridiculously good high scores that your friends
 ## Info
 Howdi-do uses <a href = "https://github.com/librosa/librosa">librosa</a><sub><sup><sup>Copyright (c) 2013--2023, librosa development team</sup></sup></sub> to
 extract and analyze beat data.  
-I intend to also implement pitch based scoring.
+Pitch scoring has been implemented.
   
 The current implementation would require 2
 files, one being a recording of your singing and the other being a vocals file
