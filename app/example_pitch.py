@@ -66,13 +66,13 @@ print(f"Finished reference audio pitch extraction in : {elapsed_time} seconds")
 if audio_pitch[0].size > ref_pitch[0].size:
    newarr = np.pad(audio_pitch, (0,len(audio_pitch)-len(ref_pitch)))
    ref_pitch = np.pad(ref_pitch, (0,len(audio_pitch)-len(ref_pitch)), mode='constant', constant_values=0)
-   mean_squared_error = np.subtract((np.mean(newarr)), (np.mean(ref_pitch)))**2#np.mean(np.subtract(newarr,ref_pitch))**2
+   mean_squared_error = np.subtract((np.mean(newarr)), (np.mean(ref_pitch)))**2
 elif audio_pitch[0].size < ref_pitch[0].size: 
    newarr = np.pad(audio_pitch, (0,len(ref_pitch)-len(audio_pitch)))
    audio_pitch = np.pad(audio_pitch, (0,len(ref_pitch)-len(audio_pitch)), mode='constant', constant_values=0)
-   mean_squared_error = np.subtract((np.mean(ref_pitch)), (np.mean(newarr)))**2#np.mean(np.subtract(ref_pitch, newarr))**2
+   mean_squared_error = np.subtract((np.mean(ref_pitch)), (np.mean(newarr)))**2
 else:
-   mean_squared_error = np.subtract((np.mean(audio_pitch)), (np.mean(ref_pitch)))**2#np.mean(np.subtract(audio_pitch, ref_pitch))**2
+   mean_squared_error = np.subtract((np.mean(audio_pitch)), (np.mean(ref_pitch)))**2
    print("Mean squared error: ", mean_squared_error)
 
 
