@@ -1,5 +1,6 @@
 import numpy as np
 import librosa
+import sys
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -21,8 +22,8 @@ MIN_SCORE:float = 0
 FRAME_LENGTH:int = 2048
 HOP_LENGTH:int = 512
 
-karaoke_performance = './app/karaoke_performance.wav'
-song_vocals = './app/JUDGEMENT-審判_(Vocals).wav'
+karaoke_performance = sys.argv[1]
+song_vocals = sys.argv[2]
 
 performance_fmin = float(librosa.note_to_hz('C2'))
 performance_fmax = float(librosa.note_to_hz('C7'))
