@@ -1,6 +1,6 @@
 import numpy as np
 import librosa
-from multiprocessing import Process, Queue, Pipe
+from concurrent.futures import ThreadPoolExecutor
 
 
 singer_extraction_finished:bool = False
@@ -9,9 +9,12 @@ song_extraction_finished:bool = False
 singer_pitch_extraction_finished:bool = False
 song_pitch_extraction_finished:bool = False
 
-
 global rhythm_score
+global tempo_score
 global pitch_score
+rhythm_score:float = 0
+tempo_score:float = 0
+pitch_score:float = 0
 
 MAX_SCORE:float = 100
 MIN_SCORE:float = 0
@@ -29,67 +32,57 @@ song_fmax = float(librosa.note_to_hz('C7'))
 
 
 #!Rhythm Extract
-def extract_singer_rhythm(pipe):
+def extract_singer_rhythm():
 	performance_y, performance_sr = librosa.load(karaoke_performance)
-	print("Extracting performance rhythm...")
 	tempo, beat_frames = librosa.beat.beat_track(y=performance_y, sr=performance_sr)
+	singer_tempo = tempo
 	singer_beat_frames = beat_frames
-	#queue.put((1, singer_beat_frames))
-	pipe.send(singer_beat_frames)
-	pipe.close()
 	singer_extraction_finished = True
-	print("Singer rhythm done!");print("Singer extraction finished: ", singer_extraction_finished)
-	return singer_extraction_finished
+	return singer_beat_frames, singer_tempo, singer_extraction_finished
 
-def extract_song_rhythm(pipe):
+def extract_song_rhythm():
 	song_y, song_sr = librosa.load(song_vocals)
-	print("Extracting song rhythm...")
 	tempo, beat_frames = librosa.beat.beat_track(y=song_y, sr=song_sr)
+	song_tempo = tempo
 	song_beat_frames = beat_frames
-	#queue.put((2, song_beat_frames))
-	pipe.send(song_beat_frames)
 	song_extraction_finished = True
-	print("Song rhythm done!");print("Song extraction finished: ", song_extraction_finished)
-	return song_extraction_finished
+	return song_beat_frames, song_tempo, song_extraction_finished
 #//!Rhythm Extract
 
 
-
 #!Pitch Extract
-def extract_singer_pitch(pipe):
+def extract_singer_pitch():
 	performance_y, performance_sr = librosa.load(karaoke_performance)
-	print("Starting performance pitch extraction")
 	singer_pitch = librosa.yin(performance_y, fmin=performance_fmin, fmax=performance_fmax, 
  sr=performance_sr, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)
-	pipe.send(singer_pitch)
 	singer_pitch_extraction_finished = True
+	return singer_pitch, singer_pitch_extraction_finished
 
-	print("Finished singer pitch extraction!")
-	return singer_pitch_extraction_finished
-
-def extract_song_pitch(pipe):
+def extract_song_pitch():
 	song_y, song_sr = librosa.load(song_vocals)
-	print("Starting song pitch extraction.")
 	song_pitch = librosa.yin(song_y, fmin=song_fmin, fmax=song_fmax, sr=song_sr,
  frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)
-	pipe.send(song_pitch)
 	song_pitch_extraction_finished = True
-
-	print("Finished song pitch extraction!")
-	return song_pitch_extraction_finished
+	return song_pitch, song_pitch_extraction_finished
 	#//!Pitch Extract
-
 
 
 #!Scoring
 def score_rhythm(singer_beat_frames, song_beat_frames):
 	global rhythm_score
-	print("Scoring rhythm...!")
 	rhythm_deviation = np.subtract(np.mean(np.abs(song_beat_frames)), np.mean(np.abs(singer_beat_frames)))
 	rhythm_score = MAX_SCORE - (rhythm_deviation / 10)
 	rhythm_score = max(min(rhythm_score, MAX_SCORE), MIN_SCORE)
-	print("rhythm Deviation: ", rhythm_deviation)
 	print("Rhythm Score:", rhythm_score)
+	return rhythm_score
+
+def score_tempo(singer_tempo, song_tempo):
+	global tempo_score
+	tempo_deviation = np.subtract(song_tempo, singer_tempo)
+	tempo_score = MAX_SCORE - (tempo_deviation)
+	tempo_score = max(min(tempo_score, MAX_SCORE), MIN_SCORE)
+	print("Tempo Score:", tempo_score)
+	return tempo_score
 
 def score_pitch(singer_pitch, song_pitch):
 	global pitch_score
@@ -105,52 +98,46 @@ def score_pitch(singer_pitch, song_pitch):
 		mean_squared_error = np.subtract((np.mean(singer_pitch)), (np.mean(song_pitch)))**2
 		pitch_score = MAX_SCORE - (mean_squared_error / 1000)
 		pitch_score = max(min(pitch_score, MAX_SCORE), MIN_SCORE)
-		print("Mean squared error: ", mean_squared_error)
-		print("Pitch Score: ", pitch_score)
+		print("Pitch Score:", pitch_score)
+		return pitch_score
+
+def score(rhythm_score, tempo_score, pitch_score):
+	score = (rhythm_score + tempo_score + pitch_score) / 3
+	print("Song Score:", score)
+	return score
 #//!Scoring
 
 
+with ThreadPoolExecutor(max_workers=4) as executor:
+ worker1 = executor.submit(extract_singer_rhythm)
+ worker2 = executor.submit(extract_song_rhythm)
+ worker3 = executor.submit(extract_singer_pitch)
+ worker4 = executor.submit(extract_song_pitch)
 
-if __name__=='__main__':
-	
+ singer_beat_frames, singer_tempo, singer_extraction_finished = worker1.result()
+ song_beat_frames, song_tempo, song_extraction_finished = worker2.result()
+ singer_pitch, singer_pitch_extraction_finished = worker3.result()
+ song_pitch, song_pitch_extraction_finished = worker4.result()
 
-	pipe_parent, pipe_child = Pipe()
-	pipe_parent1, pipe_child1 = Pipe()
-	pipe_parent2, pipe_child2 = Pipe()
-	pipe_parent3, pipe_child3 = Pipe()
+while singer_extraction_finished == False and song_extraction_finished == False:
+		pass 
+	#//like I'm passin' on anything but gruelling manual labour because I was too dumb to get good grades all those years ago hah gottem :-(
+else:
+	score_rhythm(singer_beat_frames, song_beat_frames)
+	score_tempo(singer_tempo, song_tempo)
+	#*I gave you all I had... I did.
 
-	p1 = Process(target = extract_singer_rhythm, args=(pipe_child,))
-	p1.start()
-
-
-	p2 = Process(target = extract_song_rhythm, args=(pipe_child1,))
-	p2.start()
-	p1.join()
-	p2.join()
-
-	
-
-	p3 = Process(target= extract_singer_pitch, args=(pipe_child2,))
-	p3.start()
-	p4 = Process(target= extract_song_pitch, args=(pipe_child3,))
-	p4.start()
-	p3.join()
-	p4.join()
-
-	while singer_extraction_finished == True and song_extraction_finished == True:
-		print("Waiting on stuff....")
-	else:
-		score_rhythm(pipe_parent.recv(), pipe_parent1.recv())
-		print("I gave you all I had... I did.")
-
-		
-
-	
-	while singer_pitch_extraction_finished == False and song_pitch_extraction_finished == False:
-		print("Help, I'm a cat and someone trapped me in this guy's code!!!")
+while singer_pitch_extraction_finished == False and song_pitch_extraction_finished == False:
+	pass
+	#?Help, I'm a cat and someone trapped me in this guy's code!!!
 #!		/\_/\ 
 #!	( o.o ) 
 #!	> ^ < 
-	else:
-		score_pitch(pipe_parent2.recv(), pipe_parent3.recv())
-		print("もう終わりだ。。。")
+else:
+	score_pitch(singer_pitch, song_pitch)
+
+while singer_extraction_finished == False and song_extraction_finished == False and singer_pitch_extraction_finished == False and song_pitch_extraction_finished == False:
+	pass
+else:
+	score(rhythm_score, tempo_score, pitch_score)
+	#*おわりですニャー
