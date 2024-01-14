@@ -21,6 +21,6 @@ of the song you're singing.
 This is intended to be used as a "scoring backend", standalone use is possible  
 but it's designed to get its inputs from another script.
 
-I'm building this to use in my karaoke system <a href = "https://github.com/HyPerMax5/RyuGaKaraoke">Ryū Ga Karaoke</a>.
+I'm building this to use in <a href = "https://github.com/HyPerMax5/RyuGaKaraoke">my karaoke system</a>.
 
 
