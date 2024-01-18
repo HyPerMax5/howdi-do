@@ -23,4 +23,13 @@ but it's designed to get its inputs from another script.
 
 I'm building this to use in <a href = "https://github.com/HyPerMax5/RyuGaKaraoke">my karaoke system</a>.
 
+## Usage
+``pip install -r requirements.txt``  
+Open ./app folder in your shell of choice.  
+``python __main__.py "[path to karaoke recording]" "[Path to song vocals]"``
+
+Results are printed to stdout, might re-implement save to file via another  
+sys argument, however this is mainly intended to be used as a backend.  
+And I have an irrational hatred for writing small files to disk instead of  
+just keeping the variables in memory, especially when it's only 4 things.
 
